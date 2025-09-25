@@ -277,7 +277,7 @@
   var body = root.querySelector('.chatbot-body');
 
   // ====== Config ======
-  var OWNER_EMAIL = (window.CHAT_OWNER_EMAIL || 'owner@example.com');
+  var OWNER_EMAIL = (window.CHAT_OWNER_EMAIL || 'rohankumarchaudhry550@gmail.com');
   var MAIL_WEBHOOK = (window.CHAT_MAIL_WEBHOOK || ''); // e.g., Formspree/Make webhook URL
 
   // ====== Draggable floating button ======
