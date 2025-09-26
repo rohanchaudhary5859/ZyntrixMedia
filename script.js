@@ -278,12 +278,11 @@
 
   // ====== Config ======
   var OWNER_EMAIL = (window.CHAT_OWNER_EMAIL || 'rohankumarchaudhry550@gmail.com');
-  var MAIL_WEBHOOK = (window.CHAT_MAIL_WEBHOOK || ''); // e.g., Formspree/Make webhook URL
+  var MAIL_WEBHOOK = (window.CHAT_MAIL_WEBHOOK || '');
 
   // ====== Draggable floating button ======
   (function(){
-    var dragging = false;
-    var startX = 0, startY = 0, startLeft = 0, startTop = 0;
+    var dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
     function clamp(val, min, max){ return Math.max(min, Math.min(max, val)); }
     function onDown(e){
       var point = e.touches ? e.touches[0] : e;
@@ -302,7 +301,7 @@
       var point = e.touches ? e.touches[0] : e;
       var dx = point.clientX - startX;
       var dy = point.clientY - startY;
-      var vw = window.innerWidth; var vh = window.innerHeight;
+      var vw = window.innerWidth, vh = window.innerHeight;
       var rect = root.getBoundingClientRect();
       var newLeft = clamp(startLeft + dx, 6, vw - rect.width - 6);
       var newTop = clamp(startTop + dy, 6, vh - rect.height - 6);
@@ -322,33 +321,27 @@
     fab.addEventListener('touchstart', onDown, { passive: true });
   })();
 
-  // Panel closed initially
   panel.classList.add('closed');
 
-  // Open chat
   function openChat() {
     panel.classList.remove('closed');
     fab.setAttribute('aria-expanded', 'true');
     input.focus();
   }
 
-  // Close chat
   function closeChat() {
     panel.classList.add('closed');
     fab.setAttribute('aria-expanded', 'false');
     fab.focus();
   }
 
-  // Toggle button
   fab.addEventListener('click', function () {
     if (panel.classList.contains('closed')) openChat();
     else closeChat();
   });
 
-  // Close button
   close.addEventListener('click', closeChat);
 
-  // Append messages
   function appendMsg(text, who) {
     var div = document.createElement('div');
     div.className = 'chat-msg ' + (who || 'bot');
@@ -373,16 +366,14 @@
     body.scrollTop = body.scrollHeight;
   }
 
-  // ====== Rich intent-based replies with Zyntrix knowledge ======
+  // ====== Knowledge Base ======
   var KB = {
     company: {
       name: 'Zyntrix',
       tagline: 'Web Design & Digital Marketing for Modern Businesses',
       whatsapp: 'wa.me/917986678730',
       services: ['Web Design & Development','Mobile App Development','UI/UX Design','E‑commerce Development','SEO & Digital Marketing','Branding & Identity','Analytics & BI'],
-      timelines: {
-        website: '2–4 weeks', uiux: '4–8 weeks', fullstack: '6–12 weeks'
-      },
+      timelines: { website: '2–4 weeks', uiux: '4–8 weeks', fullstack: '6–12 weeks' },
       sellingPoints: ['Fast delivery','Modern UX/UI','SEO‑focused','Mobile‑first','Full‑stack solutions','Reliable support'],
       process: 'Discovery → Design → Build → QA → Launch → Support',
       pricing: 'Fixed‑price packages for defined scope or sprint‑based for evolving needs.'
@@ -390,13 +381,12 @@
     faqs: [
       { q: 'what services', a: 'We provide Web, Mobile, UI/UX, E‑commerce, SEO/Marketing, Branding, and Analytics.' },
       { q: 'timeline', a: 'Websites: 2–4 weeks; UI/UX: 4–8 weeks; Full builds: 6–12 weeks depending on scope.' },
-      { q: 'pricing', a: 'We offer fixed‑price packages or sprint‑based billing. Share your scope for a fast quote.' },
+      { q: 'pricing', a: 'We offer fixed‑price packages or sprint-based billing. Share your scope for a fast quote.' },
       { q: 'contact', a: 'Reach us on WhatsApp at wa.me/917986678730 or use the Contact buttons.' },
       { q: 'support', a: 'We provide maintenance, SEO monitoring, performance optimization, and support plans.' }
     ]
   };
 
-  // Basic multilingual synonyms
   var HINGLISH = /\b(namaste|hello|hi|hey|kaise|kaam|banwana|website|app|kiraya|kimat|daam|price|budget|estimate|kitna|kab|time|timeline|email|mail|phone|number|whatsapp|sahayta|madad)\b/i;
 
   function detectIntent(m){
@@ -412,9 +402,9 @@
     return 'open';
   }
 
-  function formatList(items){ return items.map(function(x){ return '• ' + x; }).join('\n'); }
+  function formatList(items){ return items.map(x => '• ' + x).join('\n'); }
 
-  // ====== Lightweight NLU and lead capture ======
+  // ====== Lead Capture ======
   var lead = JSON.parse(localStorage.getItem('zyntrix_lead') || 'null') || {
     name: '', email: '', phone: '', company: '',
     projectType: '', features: '', budget: '', timeline: '', notes: ''
@@ -422,44 +412,53 @@
 
   function saveLead(){ localStorage.setItem('zyntrix_lead', JSON.stringify(lead)); }
 
+  function missingFields(){
+    var req = ['name','email','phone','projectType','features','budget','timeline'];
+    return req.filter(k => !lead[k]);
+  }
+
   function extractEntities(text){
     var t = text;
+    var miss = missingFields()[0];
+
+    // Name
+    if(miss === 'name' || /\bi am\b|\bi'm\b|\bmy name\b/i.test(t)){
+      var m = t.replace(/.*(i am|i'm|my name is)\s*/i,'').split(/[,.;\n]/)[0].trim();
+      if(!m && miss === 'name') m = t.trim();
+      if(m && m.length <= 40) lead.name = m;
+    }
+
     // Email
     var email = (t.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i) || [])[0];
     if(email) lead.email = email;
-    // Phone (10-13 digits)
+
+    // Phone
     var phone = (t.replace(/[^0-9+]/g,'').match(/\+?\d{10,13}/) || [])[0];
     if(phone) lead.phone = phone;
-    // Budget (₹, rs, USD)
+
+    // Budget
     var bud = (t.match(/(₹|rs\.?|inr|usd|\$)\s?([0-9,.]+\s?[kKmM]?)/i) || [])[0];
     if(bud) lead.budget = bud;
-    // Timeline (weeks/months)
+
+    // Timeline
     var time = (t.match(/(\d+\s*(day|days|week|weeks|month|months))|([1-9]\d?\s*(din|hafta|mahina))/i) || [])[0];
     if(time) lead.timeline = time;
-    // Project type keywords
+
+    // Project type
     if(/\b(app|application|mobile)\b/i.test(t)) lead.projectType = lead.projectType || 'Mobile App';
     if(/\bwebsite|site|landing\b/i.test(t)) lead.projectType = lead.projectType || 'Website';
     if(/e-?commerce|store|shop|woocommerce|shopify/i.test(t)) lead.projectType = lead.projectType || 'E‑commerce';
-    // Name simple cue
-    if(/\bi am\b|\bi'm\b|\bmy name\b/i.test(t)){
-      var m = t.replace(/.*(i am|i'm|my name is)\s*/i,'').split(/[,.;\n]/)[0].trim();
-      if(m && m.length <= 40) lead.name = lead.name || m;
-    }
+
     // Company
     if(/\b(company|firm|agency)\b/i.test(t)){
       var c = t.replace(/.*(company|firm|agency)\s*(name|is|:)?\s*/i,'').split(/[,.;\n]/)[0].trim();
       if(c && c.length <= 60) lead.company = lead.company || c;
     }
-    // Features free text if user lists with commas
-    if(/,/.test(t) && t.split(',').length >= 2){
-      lead.features = lead.features || t;
-    }
-    saveLead();
-  }
 
-  function missingFields(){
-    var req = ['name','email','phone','projectType','features','budget','timeline'];
-    return req.filter(function(k){ return !lead[k]; });
+    // Features free text
+    if(/,/.test(t) && t.split(',').length >= 2) lead.features = lead.features || t;
+
+    saveLead();
   }
 
   function leadSummary(){
@@ -508,9 +507,9 @@
     if(MAIL_WEBHOOK){
       try {
         fetch(MAIL_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: OWNER_EMAIL, subject: 'New Lead from Zyntrix Chatbot', text: leadSummary(), lead: lead }) })
-          .then(function(r){ return r.ok ? r.text() : Promise.reject(new Error('Webhook failed')); })
-          .then(function(){ appendMsg('Email/webhook sent successfully ✅', 'bot'); })
-          .catch(function(){ window.location.href = 'mailto:'+OWNER_EMAIL+'?subject='+subject+'&body='+bodyTxt; });
+          .then(r => r.ok ? r.text() : Promise.reject(new Error('Webhook failed')))
+          .then(() => appendMsg('Email/webhook sent successfully ✅', 'bot'))
+          .catch(() => window.location.href = 'mailto:'+OWNER_EMAIL+'?subject='+subject+'&body='+bodyTxt);
       } catch(_e){
         window.location.href = 'mailto:'+OWNER_EMAIL+'?subject='+subject+'&body='+bodyTxt;
       }
@@ -524,7 +523,7 @@
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url; a.download = 'zyntrix-lead.json'; a.click();
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   function replyFor(message) {
@@ -532,6 +531,7 @@
     extractEntities(m);
     var intent = detectIntent(m);
     var c = KB.company;
+
     switch(intent){
       case 'pricing':
         return 'Pricing: ' + c.pricing + '\nApna budget approx bata dein, mai estimate share karunga.';
@@ -550,22 +550,25 @@
       case 'greet':
         return 'Hello! Namaste! Main Zyntrix assistant hoon. Services, pricing, ya timelines pooch sakte hain. Aap kya build karna chahte hain?';
       default:
-        // Fallback with helpful CTA + start lead capture
-        setTimeout(promptForMissing, 100);
-        return 'Samajh gaya. Project type, features, budget, aur timeline share karein. Main notes bana raha hoon.';
+        var miss = missingFields();
+        if(miss.length){
+          setTimeout(promptForMissing, 100);
+          return 'Samajh gaya. Chaliye missing info complete karte hain.';
+        } else {
+          setTimeout(offerSend, 100);
+          return 'Thanks! Sab info mil gayi.';
+        }
     }
   }
 
-  // Seed welcome message
   appendMsg('Hi! I’m here to help with Zyntrix services, pricing, and timelines. Aap apni requirements share karein — main summary email kar dunga.', 'bot');
 
-  // Form submit
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     var text = (input.value || '').trim();
     if (!text) return;
     appendMsg(text, 'me');
     input.value = '';
-    setTimeout(function () { appendMsg(replyFor(text), 'bot'); }, 400);
+    setTimeout(() => appendMsg(replyFor(text), 'bot'), 400);
   });
 })();
