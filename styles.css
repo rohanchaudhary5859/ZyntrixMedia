@@ -1082,3 +1082,80 @@ body.no-scroll { overflow: hidden; }
     max-width: 90%;
   }
 }
+/* contact */
+/* Section */
+.contact-section {
+  position: relative;
+  overflow: hidden;
+  background: #0a1a33; /* dark professional background */
+  padding: 4rem 1.5rem;
+  text-align: center;
+  max-height: auto;
+  color: #ffffff;
+}
+
+/* Floating squares */
+.square {
+  position: absolute;
+  border-radius: 10px;
+  opacity: 0.15;
+  filter: blur(2px);
+  animation: float 25s linear infinite;
+}
+
+/* Different squares with varied size, color, and speed */
+.square:nth-child(1) { width: 50px; height: 50px; top: 5%; left: 10%; background: #01a474; animation-duration: 30s; }
+.square:nth-child(2) { width: 30px; height: 30px; top: 20%; left: 30%; background: #ff5722; animation-duration: 28s; }
+.square:nth-child(3) { width: 60px; height: 60px; top: 35%; left: 15%; background: #ffc107; animation-duration: 32s; }
+.square:nth-child(4) { width: 40px; height: 40px; top: 50%; left: 50%; background: #00bcd4; animation-duration: 35s; }
+.square:nth-child(5) { width: 45px; height: 45px; top: 15%; left: 70%; background: #e91e63; animation-duration: 33s; }
+.square:nth-child(6) { width: 35px; height: 35px; top: 60%; left: 80%; background: #8bc34a; animation-duration: 30s; }
+.square:nth-child(7) { width: 50px; height: 50px; top: 40%; left: 60%; background: #9c27b0; animation-duration: 34s; }
+.square:nth-child(8) { width: 30px; height: 30px; top: 75%; left: 25%; background: #03a9f4; animation-duration: 36s; }
+
+/* Smooth floating animation with slight scaling */
+@keyframes float {
+  0% { transform: translateY(0) scale(1); }
+  25% { transform: translateY(-20px) scale(1.1); }
+  50% { transform: translateY(20px) scale(0.95); }
+  75% { transform: translateY(-15px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Content above squares */
+.contact-container {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Title + Subtitle */
+.contact-title { font-size: 2.2rem; font-weight: 700; margin-bottom: 1rem; }
+.contact-subtitle { font-size: 1.1rem; margin-bottom: 2rem; }
+
+/* Button */
+.contact-btn {
+  background: linear-gradient(135deg, #5c5c5c, #050045);
+  color: #ffffff;
+  padding: 0.9rem 2.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 40px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-block;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+.contact-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 30px rgba(2, 14, 126, 0.5);
+}
+
+/* Responsive */
+@media (max-width: 490px) {
+  .contact-title { font-size: 1.8rem; }
+  .contact-subtitle { font-size: 1rem; }
+  .contact-btn { width: 100%; padding: 1rem; }
+}
