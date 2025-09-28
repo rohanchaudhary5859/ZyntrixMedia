@@ -572,3 +572,96 @@
     setTimeout(() => appendMsg(replyFor(text), 'bot'), 400);
   });
 })();
+
+
+// ...existing code...
+(function(){
+  // Pricing toggle: monthly <-> yearly, update amounts and CTA links
+  var toggle = document.getElementById('billing-toggle');
+  if (!toggle) return;
+
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.price-card'));
+  function parseAmount(text){
+    if(!text) return null;
+    if(/custom/i.test(text)) return null;
+    var m = text.replace(/\s+/g,'').match(/([₹$€£]?)([0-9.,]+)([kKmM]?)/);
+    if(!m) return null;
+    var sym = m[1] || '₹';
+    var num = parseFloat(m[2].replace(/,/g,'')) || 0;
+    var suf = (m[3] || '').toLowerCase();
+    if(suf === 'k') num *= 1000;
+    if(suf === 'm') num *= 1000000;
+    return { value: num, symbol: sym };
+  }
+  function fmt(n, sym){
+    if(n == null) return '-';
+    // Use Indian grouping for rupees; fallback to default
+    try {
+      return (sym || '') + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(Math.round(n));
+    } catch (e) {
+      return (sym || '') + Math.round(n).toString();
+    }
+  }
+
+  // Build model for each card
+  var model = cards.map(function(card){
+    var amountEl = card.querySelector('.amount');
+    var periodEl = card.querySelector('.period');
+    var title = (card.querySelector('h3') && card.querySelector('h3').textContent.trim()) || 'Plan';
+    var cta = card.querySelector('a') || null;
+
+    var dataMonthly = card.getAttribute('data-monthly');
+    var dataYearly = card.getAttribute('data-yearly');
+
+    var parsed = parseAmount(amountEl ? amountEl.textContent : '');
+    var monthly = dataMonthly ? parseFloat(dataMonthly) : (parsed ? parsed.value : null);
+    var symbol = parsed ? parsed.symbol : '₹';
+
+    var yearly;
+    if (dataYearly) yearly = parseFloat(dataYearly);
+    else if (monthly != null) yearly = Math.round(monthly * 10); // 2 months free as default
+    else yearly = null;
+
+    return { card, amountEl, periodEl, title, cta, monthly, yearly, symbol };
+  });
+
+  function applyBilling(isYearly){
+    model.forEach(function(m){
+      if(!m.amountEl) return;
+      if(isYearly && m.yearly != null){
+        m.amountEl.textContent = fmt(m.yearly, m.symbol);
+        if(m.periodEl) m.periodEl.textContent = '/yr';
+        m.card.classList.add('yearly');
+      } else if(!isYearly && m.monthly != null){
+        m.amountEl.textContent = fmt(m.monthly, m.symbol);
+        if(m.periodEl) m.periodEl.textContent = '/mo';
+        m.card.classList.remove('yearly');
+      }
+      // Update CTA prefill (WhatsApp) if CTA points to wa.me
+      if(m.cta && m.cta.href && m.cta.href.includes('wa.me')){
+        try {
+          var plan = encodeURIComponent(m.title + (isYearly ? ' (yearly)' : ' (monthly)'));
+          var budget = m.monthly ? encodeURIComponent(' Budget: ' + (isYearly ? fmt(m.yearly,m.symbol) : fmt(m.monthly,m.symbol))) : '';
+          // Build base wa link (strip existing text param)
+          var href = m.cta.getAttribute('href').split('?')[0];
+          var text = 'Hi Zyntrix, I am interested in the ' + m.title + (isYearly ? ' (yearly plan).' : ' (monthly plan).') + (budget ? ' My budget is approx ' + (isYearly ? fmt(m.yearly,m.symbol) : fmt(m.monthly,m.symbol)) + '.' : '');
+          var encoded = encodeURIComponent(text);
+          m.cta.setAttribute('href', href + '?text=' + encoded);
+        } catch (e) { /* non-fatal */ }
+      }
+    });
+    // toggle class on pricing section for CSS hooks
+    var pricing = document.querySelector('.pricing');
+    if(pricing) pricing.classList.toggle('billing-yearly', isYearly);
+  }
+
+  // init
+  applyBilling(toggle.checked);
+
+  toggle.addEventListener('change', function(){
+    applyBilling(toggle.checked);
+  });
+
+})();
+{ /* end pricing toggle IIFE */ }
+// ...existing code...
