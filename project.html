@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Zyntrix — Portfolio</title>
+  <meta name="description" content="Zyntrix project showcase — case studies, live links and details for our recent web, mobile and branding work." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="logo.png" />
+  <meta name="robots" content="index,follow" />
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"CollectionPage",
+    "name":"Zyntrix Portfolio",
+    "description":"A curated showcase of Zyntrix projects with live links and case studies.",
+    "url":"https://zyntrixmedia.xyz/project.html"
+  }
+  </script>
+  <style>
+/* Hero Section */
+/* Hero */
+.projects-hero {
+    padding: 6rem 2rem;
+    text-align: center;
+    background: #fdfdfd; /* clean white */
+    color: #111;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Grid */
+.projects-grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    margin-top: 4rem;
+}
+
+/* Card */
+.project-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,0.05);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    transition: transform 0.5s cubic-bezier(0.23,1,0.32,1), 
+                box-shadow 0.5s ease;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeUp 0.8s forwards;
+}
+
+.project-card:nth-child(1) { animation-delay: 0.1s; }
+.project-card:nth-child(2) { animation-delay: 0.2s; }
+.project-card:nth-child(3) { animation-delay: 0.3s; }
+
+.project-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.08);
+}
+
+/* Thumbnail */
+.project-thumb {
+    background-size: cover;
+    background-position: center;
+    height: 200px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: transform 0.6s ease;
+}
+
+.project-card:hover .project-thumb {
+    transform: scale(1.04);
+}
+
+/* Body */
+.project-body {
+    padding: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+/* Title */
+.project-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    color: #111;
+    transition: color 0.3s ease;
+}
+
+.project-card:hover .project-title {
+    color: #0070f3; /* sleek accent */
+}
+
+/* Description */
+.project-desc {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+    flex: 1;
+}
+
+/* Actions */
+.project-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+/* Button */
+.btn-ghost {
+    background: #fafafa;
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 0.55rem 1rem;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #111;
+    text-decoration: none;
+    transition: all 0.35s ease;
+}
+
+.btn-ghost:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+}
+
+/* Tags */
+.tag-list {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+}
+
+.tag {
+    background: #f5f5f5;
+    padding: 0.35rem 0.75rem;
+    border-radius: 14px;
+    font-size: 0.8rem;
+    color: #333;
+    transition: background 0.3s ease;
+}
+
+.tag:hover {
+    background: #eaeaea;
+}
+
+/* Animation */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-wrap">
+      <a class="brand" href="index.html">
+        <img src="logo.png" alt="Zyntrix" class="brand-logo" />
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <button class="nav-toggle" aria-controls="nav-menu" aria-expanded="false">☰</button>
+        <ul id="nav-menu" class="nav-menu">
+          <li><a href="index.html#work">Work</a></li>
+          <li><a href="index.html#services">Services</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="index.html#faq">FAQ</a></li>
+          <li><a class="btn btn-primary" href="contactus.html">Contact Us</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a class="btn btn-primary" href="contactus.html">Contact Us</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="projects-hero">
+      <div class="container">
+        <p class="eyebrow">Portfolio</p>
+        <h1>Selected Projects — Live demo's & case studies</h1>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="projects-grid" id="projectsGrid">
+
+        <!-- Existing projects -->
+        <article class="project-card">
+          <div class="project-thumb" style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=60');" role="img" aria-label="Flink Coaching web redesign"></div>
+          <div class="project-body">
+            <h3 class="project-title">Flink Coaching — Web Redesign</h3>
+            <p class="project-desc">Modern responsive redesign for a coaching platform. Improved CTAs, accessibility, and page speed.</p>
+            <div class="tag-list" aria-hidden="true">
+              <span class="tag">Web</span>
+              <span class="tag">SEO</span>
+              <span class="tag">Performance</span>
+            </div>
+            <div class="project-actions" style="margin-top:1rem">
+              <a class="btn btn-primary" href="https://www.flinkcoaching.nl" target="_blank" rel="noopener">View Live</a>
+              <a class="btn-ghost" href="case-study-flink.html">Case Study</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card">
+          <div class="project-thumb" style="background-image:url('https://images.unsplash.com/photo-1516387938699-a93567ec168e?auto=format&fit=crop&w=1400&q=60');" role="img" aria-label="SEO campaign"></div>
+          <div class="project-body">
+            <h3 class="project-title">SEO Growth — Regional Retailer</h3>
+            <p class="project-desc">On-page & technical SEO improvements that resulted in 3x organic traffic in 6 months.</p>
+            <div class="tag-list" aria-hidden="true">
+              <span class="tag">SEO</span>
+              <span class="tag">Analytics</span>
+            </div>
+            <div class="project-actions" style="margin-top:1rem">
+              <a class="btn btn-primary" href="https://example-retailer.com" target="_blank" rel="noopener">View Live</a>
+              <a class="btn-ghost" href="case-study-seo.html">Case Study</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card">
+          <div class="project-thumb" style="background-image:url('https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1400&q=60');" role="img" aria-label="Finance mobile app"></div>
+          <div class="project-body">
+            <h3 class="project-title">Finance App — Cross‑platform</h3>
+            <p class="project-desc">Cross-platform mobile app focused on security and frictionless onboarding with a polished UX.</p>
+            <div class="tag-list" aria-hidden="true">
+              <span class="tag">App</span>
+              <span class="tag">UX</span>
+            </div>
+            <div class="project-actions" style="margin-top:1rem">
+              <a class="btn btn-primary" href="#" target="_blank" rel="noopener">View Demo</a>
+              <a class="btn-ghost" href="case-study-finance.html">Case Study</a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Projects from catalog -->
+        <article class="project-card">
+          <div class="project-thumb" style="background-image:url('https://via.placeholder.com/400x300');" role="img" aria-label="Colour Fit Digital Agency"></div>
+          <div class="project-body">
+            <h3 class="project-title">Colour Fit — Digital Agency</h3>
+            <p class="project-desc">A leading digital agency delivering web development, SEO, and branding strategies to help clients grow online.</p>
+            <div class="tag-list" aria-hidden="true">
+              <span class="tag">Web</span>
+              <span class="tag">SEO</span>
+              <span class="tag">Branding</span>
+            </div>
+            <div class="project-actions" style="margin-top:1rem">
+              <a class="btn btn-primary" href="https://colourfitsadigitalagency.com" target="_blank" rel="noopener">View Live</a>
+              <a class="btn-ghost" href="#">Case Study</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card">
+          <div class="project-thumb" style="background-image:url('https://via.placeholder.com/400x300');" role="img" aria-label="Finanza Financial Management"></div>
+          <div class="project-body">
+            <h3 class="project-title">Finanza — Financial Management</h3>
+            <p class="project-desc">Innovative platform to streamline financial operations, manage budgets, and analyze trends for individuals and businesses.</p>
+            <div class="tag-list" aria-hidden="true">
+              <span class="tag">App</span>
+              <span class="tag">Finance</span>
+              <span class="tag">UX</span>
+            </div>
+            <div class="project-actions" style="margin-top:1rem">
+              <a class="btn btn-primary" href="https://finanza-xpor.vercel.app" target="_blank" rel="noopener">View Demo</a>
+              <a class="btn-ghost" href="#">Case Study</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card">
+          <div class="project-thumb" style="background-image:url('https://via.placeholder.com/400x300');" role="img" aria-label="Anon E-Commerce Platform"></div>
+          <div class="project-body">
+            <h3 class="project-title">Anon — E-Commerce Platform</h3>
+            <p class="project-desc">Secure and private e-commerce platform offering intuitive navigation and personalized shopping experiences.</p>
+            <div class="tag-list" aria-hidden="true">
+              <span class="tag">Web</span>
+              <span class="tag">E-Commerce</span>
+              <span class="tag">Security</span>
+            </div>
+            <div class="project-actions" style="margin-top:1rem">
+              <a class="btn btn-primary" href="https://anon-alpha-seven.vercel.app" target="_blank" rel="noopener">View Live</a>
+              <a class="btn-ghost" href="#">Case Study</a>
+            </div>
+          </div>
+        </article>
+        <!-- MediCore Project -->
+<article class="project-card">
+  <div class="project-thumb" style="background-image:url('https://images.unsplash.com/photo-1588776814546-ec60f75d7a28?auto=format&fit=crop&w=1400&q=60');" role="img" aria-label="MediCore Healthcare Portal"></div>
+  <div class="project-body">
+    <h3 class="project-title">MediCore — Healthcare Portal</h3>
+    <p class="project-desc">Comprehensive healthcare portal for managing appointments, patient records, and secure teleconsultations.</p>
+    <div class="tag-list" aria-hidden="true">
+      <span class="tag">Web</span>
+      <span class="tag">Healthcare</span>
+      <span class="tag">Security</span>
+    </div>
+    <div class="project-actions" style="margin-top:1rem">
+      <a class="btn btn-primary" href="https://medicore-health.vercel.app" target="_blank" rel="noopener">View Live</a>
+      <a class="btn-ghost" href="#">Case Study</a>
+    </div>
+  </div>
+</article>
+
+<!-- EduSmart Project -->
+<article class="project-card">
+  <div class="project-thumb" style="background-image:url('https://images.unsplash.com/photo-1584697964190-0fada6b2d1c4?auto=format&fit=crop&w=1400&q=60');" role="img" aria-label="EduSmart Learning Platform"></div>
+  <div class="project-body">
+    <h3 class="project-title">EduSmart — Learning Platform</h3>
+    <p class="project-desc">Smart e-learning system with personalized courses, interactive tools, and analytics for student progress.</p>
+    <div class="tag-list" aria-hidden="true">
+      <span class="tag">Web</span>
+      <span class="tag">Education</span>
+      <span class="tag">Analytics</span>
+    </div>
+    <div class="project-actions" style="margin-top:1rem">
+      <a class="btn btn-primary" href="https://edusmart-platform.vercel.app" target="_blank" rel="noopener">View Live</a>
+      <a class="btn-ghost" href="#">Case Study</a>
+    </div>
+  </div>
+</article>
+
+<!-- Travelio Project -->
+<article class="project-card">
+  <div class="project-thumb" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=60');" role="img" aria-label="Travelio Booking System"></div>
+  <div class="project-body">
+    <h3 class="project-title">Travelio — Booking System</h3>
+    <p class="project-desc">A robust booking platform offering seamless travel planning, secure payments, and real-time updates.</p>
+    <div class="tag-list" aria-hidden="true">
+      <span class="tag">App</span>
+      <span class="tag">Travel</span>
+      <span class="tag">Payments</span>
+    </div>
+    <div class="project-actions" style="margin-top:1rem">
+      <a class="btn btn-primary" href="https://travelio-booking.vercel.app" target="_blank" rel="noopener">View Live</a>
+      <a class="btn-ghost" href="#">Case Study</a>
+    </div>
+  </div>
+</article>
+
+
+      </div>
+
+      <p style="text-align:center;margin-top:2rem;color:var(--muted,#6b7280);">
+        Want your project featured here? <a href="contactus.html">Get in touch</a>.
+      </p>
+    </section>
+  </main>
+
+<footer class="site-footer">
+    <div class="container footer-wrap">
+      <div class="footer-meta">
+        <img src="logo.png" alt="Zyntrix" class="footer-logo" />
+        <p>© <span data-year></span> Zyntrix. All rights reserved.</p>
+      </div>
+      <ul class="social">
+        <li><a href="https://www.linkedin.com/company/zyntrixtech/" aria-label="Linkedin">Linkedin</a></li>
+        <li><a href="https://www.instagram.com/zyntrixtech?igsh=NzZqd290NmlqNm03" aria-label="Instagram">Instagram</a></li>
+        <li><a href="https://wa.me/917986678730?text=Hi%20Zyntrix%2C%20I%27d%20like%20to%20start%20a%20project." aria-label="Whatsapp">Whatsapp</a></li>
+      </ul>
+    </div>
+    <div class="footer-mark" aria-hidden="true"><span>ZYNTRIX</span></div>
+  </footer>
+
+  <script>
+    // Set current year
+    (function(){
+      const y = new Date().getFullYear();
+      document.querySelectorAll('[data-year]').forEach(el=>el.textContent = y);
+    })();
+  </script>
+</body>
+</html>
