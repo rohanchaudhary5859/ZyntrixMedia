@@ -67,19 +67,7 @@
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 })();
 
-// Smooth scroll for in-page links
-(function () {
-  document.querySelectorAll('a[href^="#"]').forEach(function (a) {
-    a.addEventListener('click', function (e) {
-      var id = a.getAttribute('href');
-      var el = id && id.length > 1 ? document.querySelector(id) : null;
-      if (!el) return;
-      e.preventDefault();
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      history.pushState(null, '', id);
-    });
-  });
-})();
+// Smooth scrolling handled via CSS: html { scroll-behavior: smooth }
 
 // Scrollspy for active nav link
 (function () {
@@ -159,15 +147,23 @@
   var header = document.querySelector('.site-header');
   if (!header) return;
   var lastY = window.scrollY;
-  function onScroll() {
+  var ticking = false;
+  function update() {
     var y = window.scrollY;
     if (y > 4) header.classList.add('scrolled'); else header.classList.remove('scrolled');
     var goingDown = y > lastY && y > 80;
     header.classList.toggle('nav-hidden', goingDown);
     lastY = y;
+    ticking = false;
+  }
+  function onScroll() {
+    if (!ticking) {
+      requestAnimationFrame(update);
+      ticking = true;
+    }
   }
   window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  update();
 })();
 
 // Subtle parallax for hero media
@@ -186,7 +182,7 @@
     });
   }
   function reset() { cards.forEach(function (c) { c.style.transform = 'translate(0,0)'; }); rect = null; }
-  area.addEventListener('mousemove', onMove);
+  area.addEventListener('mousemove', onMove, { passive: true });
   area.addEventListener('mouseleave', reset);
 })();
 
@@ -276,6 +272,39 @@
   var input = form.querySelector('input[name="message"]');
   var body = root.querySelector('.chatbot-body');
 
+  // ====== Conversation History (persist across visits) ======
+  var historyKey = 'zyntrix_chat_history';
+  var history = [];
+  try { history = JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch(_e) { history = []; }
+  function saveHistory(){ try { localStorage.setItem(historyKey, JSON.stringify(history)); } catch(_e){} }
+  function renderHistory(){
+    if(!Array.isArray(history)) return;
+    body.innerHTML = '';
+    history.forEach(function(entry){
+      if(entry.type === 'msg'){
+        var div = document.createElement('div');
+        div.className = 'chat-msg ' + (entry.who || 'bot');
+        div.textContent = entry.text || '';
+        body.appendChild(div);
+      } else if(entry.type === 'actions' && Array.isArray(entry.labels)){
+        var wrap = document.createElement('div');
+        wrap.className = 'chat-msg bot';
+        entry.labels.forEach(function(label){
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = label;
+          btn.style.marginRight = '6px';
+          btn.className = 'btn-mini';
+          // Recreate limited behavior for restored buttons: disabled state
+          btn.disabled = true;
+          wrap.appendChild(btn);
+        });
+        body.appendChild(wrap);
+      }
+    });
+    body.scrollTop = body.scrollHeight;
+  }
+
   // ====== Config ======
   var OWNER_EMAIL = (window.CHAT_OWNER_EMAIL || 'rohankumarchaudhry550@gmail.com');
   var MAIL_WEBHOOK = (window.CHAT_MAIL_WEBHOOK || '');
@@ -347,7 +376,27 @@
     div.className = 'chat-msg ' + (who || 'bot');
     div.textContent = text;
     body.appendChild(div);
+    history.push({ type: 'msg', who: (who || 'bot'), text: text, ts: Date.now() });
+    saveHistory();
     body.scrollTop = body.scrollHeight;
+  }
+
+  // Typing indicator helpers
+  function showTyping(){
+    hideTyping();
+    var wrap = document.createElement('div');
+    wrap.className = 'chat-msg bot';
+    var tip = document.createElement('div');
+    tip.className = 'chat-typing';
+    for(var i=0;i<3;i++){ var d = document.createElement('span'); d.className='dot'; tip.appendChild(d); }
+    wrap.appendChild(tip);
+    wrap.setAttribute('data-typing','1');
+    body.appendChild(wrap);
+    body.scrollTop = body.scrollHeight;
+  }
+  function hideTyping(){
+    var t = body.querySelector('[data-typing="1"]');
+    if(t) t.remove();
   }
 
   function appendActions(actions){
@@ -363,6 +412,8 @@
       wrap.appendChild(btn);
     });
     body.appendChild(wrap);
+    history.push({ type: 'actions', labels: actions.map(function(a){ return a.label; }), ts: Date.now() });
+    saveHistory();
     body.scrollTop = body.scrollHeight;
   }
 
@@ -417,6 +468,42 @@
     return req.filter(k => !lead[k]);
   }
 
+  function normalizeBudget(raw){
+    var t = String(raw || '').trim();
+    if(!t) return '';
+    // Normalize common formats: 5k, 50k, 2 lakh, 1.5 cr, 2-3L, 50,000 etc.
+    var lower = t.toLowerCase();
+    // Convert lakh/crore to numbers
+    var num = null; var symbol = '₹';
+    // Range like 50k-60k or 2-3 lakh -> pick midpoint
+    var range = lower.match(/([0-9]+(?:\.[0-9]+)?)\s*(k|m|l|lac|lakh|cr|crore)?\s*[-–to]+\s*([0-9]+(?:\.[0-9]+)?)\s*(k|m|l|lac|lakh|cr|crore)?/);
+    function mulFor(u){
+      if(!u) return 1;
+      if(u === 'k') return 1e3;
+      if(u === 'm') return 1e6;
+      if(u === 'l' || u === 'lac' || u === 'lakh') return 1e5;
+      if(u === 'cr' || u === 'crore') return 1e7;
+      return 1;
+    }
+    if(range){
+      var a = parseFloat(range[1]) * mulFor(range[2]);
+      var b = parseFloat(range[3]) * mulFor(range[4] || range[2]);
+      num = Math.round((a + b) / 2);
+      return symbol + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(num);
+    }
+    var m = lower.match(/(\₹|rs\.?|inr|usd|\$)?\s*([0-9][0-9,]*(?:\.[0-9]+)?)\s*(k|m|l|lac|lakh|cr|crore)?/i);
+    if(m){
+      var sym = (m[1] || '').toUpperCase();
+      if(sym.includes('USD') || sym === '$') symbol = '$';
+      var base = parseFloat((m[2] || '0').replace(/,/g,''));
+      var unit = (m[3] || '').toLowerCase();
+      num = Math.round(base * mulFor(unit));
+      try { return symbol + new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(num); }
+      catch(_e){ return symbol + String(num); }
+    }
+    return t; // fallback to raw
+  }
+
   function extractEntities(text){
     var t = text;
     var miss = missingFields()[0];
@@ -436,9 +523,9 @@
     var phone = (t.replace(/[^0-9+]/g,'').match(/\+?\d{10,13}/) || [])[0];
     if(phone) lead.phone = phone;
 
-    // Budget
-    var bud = (t.match(/(₹|rs\.?|inr|usd|\$)\s?([0-9,.]+\s?[kKmM]?)/i) || [])[0];
-    if(bud) lead.budget = bud;
+    // Budget (improved)
+    var budm = t.match(/(\₹|rs\.?|inr|usd|\$)?\s*[0-9][0-9,]*(?:\.[0-9]+)?\s*(k|m|l|lac|lakh|cr|crore)?/i);
+    if(budm) lead.budget = normalizeBudget(budm[0]);
 
     // Timeline
     var time = (t.match(/(\d+\s*(day|days|week|weeks|month|months))|([1-9]\d?\s*(din|hafta|mahina))/i) || [])[0];
@@ -489,6 +576,7 @@
       budget: 'Approx budget (₹/USD)?',
       timeline: 'Timeline/deadline?'
     };
+    state.awaiting = miss[0];
     appendMsg(map[miss[0]] || ('Please share: ' + miss[0]), 'bot');
   }
 
@@ -561,7 +649,18 @@
     }
   }
 
-  appendMsg('Hi! I’m here to help with Zyntrix services, pricing, and timelines. Aap apni requirements share karein — main summary email kar dunga.', 'bot');
+  // ====== Guided Q&A state ======
+  var state = { awaiting: '' };
+
+  // Restore any previous conversation
+  if(history.length){
+    renderHistory();
+  } else {
+    // Avoid duplicate greeting: only add if body has no messages
+    if(!body.querySelector('.chat-msg')){
+      appendMsg('Hi! I’m here to help with Zyntrix services, pricing, and timelines. Aap apni requirements share karein — main summary email kar dunga.', 'bot');
+    }
+  }
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -569,7 +668,38 @@
     if (!text) return;
     appendMsg(text, 'me');
     input.value = '';
-    setTimeout(() => appendMsg(replyFor(text), 'bot'), 400);
+    // If we are awaiting a specific field, capture it first, then move to next
+    if(state.awaiting){
+      var key = state.awaiting;
+      // naive assignment; extractEntities already tries too, but ensure direct capture
+      if(key === 'budget'){
+        lead.budget = lead.budget || normalizeBudget(text);
+      } else if(key === 'features'){
+        lead.features = lead.features || text;
+      } else if(key === 'timeline'){
+        lead.timeline = lead.timeline || text;
+      } else if(key === 'projectType'){
+        lead.projectType = lead.projectType || text;
+      } else if(key === 'name'){
+        lead.name = lead.name || text;
+      } else if(key === 'email'){
+        // prefer regex capture in extractEntities, but fall back to raw
+        lead.email = lead.email || text;
+      } else if(key === 'phone'){
+        lead.phone = lead.phone || text;
+      }
+      saveLead();
+      state.awaiting = '';
+      var still = missingFields();
+      if(still.length){
+        setTimeout(promptForMissing, 150);
+      } else {
+        setTimeout(offerSend, 150);
+      }
+      return;
+    }
+    showTyping();
+    setTimeout(function(){ hideTyping(); appendMsg(replyFor(text), 'bot'); }, 500 + Math.min(1400, Math.max(300, text.length * 25)));
   });
 })();
 

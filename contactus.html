@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contact — Zyntrix | A Digital Agency</title>
+  <meta name="description" content="Get in touch with Zyntrix — design, development and growth teams ready to help." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="https://zyntrixmedia.xyz/logo.png" type="image/png" />
+
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+   <header class="site-header">
+    <div class="container header-wrap">
+      <a class="brand" href="index.html">
+        <img src="logo.png" alt="Zyntrix" class="brand-logo" />
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <button class="nav-toggle" aria-controls="nav-menu" aria-expanded="false">☰</button>
+        <ul id="nav-menu" class="nav-menu">
+          <li><a href="index.html#work">Work</a></li>
+          <li><a href="index.html#services">Services</a></li>
+          <li><a class="active" href="about.html">About</a></li>
+          <li><a href="index.html#faq">FAQ</a></li>
+          <li><a class="btn btn-primary" href="contactus.html">Contact Us</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions">
+        <a class="btn btn-primary" href="contactus.html">Contact Us</a>
+      </div>
+    </div>
+  </header>
+  <main id="main">
+<section class="connect-hero">
+  <div class="connect-container">
+    <div class="connect-details" data-reveal>
+      <p class="subtitle">Let's talk</p>
+      <h1>Start a project or ask a question</h1>
+      <p class="intro-text">Fast response, flexible engagement — we handle design, engineering and growth. Choose a convenient way to reach us.</p>
+
+      <ul class="highlights-list" aria-label="Highlights">
+        <li>120+ Projects</li>
+        <li>WhatsApp & Email support</li>
+        <li>Estimate in 48 hours</li>
+      </ul>
+
+      <div class="buttons">
+        <a class="primary-button" href="https://wa.me/917986678730?text=Hi%20Zyntrix%2C%20I%27d%20like%20to%20start%20a%20project.">Chat on WhatsApp</a>
+        <a class="secondary-button" href="mailto:hello@zyntrixmedia.xyz">Email Us</a>
+      </div>
+
+      <div class="contact-info">
+        <strong>Phone:</strong> <a href="tel:+917986678730">+91 79866 78730</a><br/>
+        <strong>Hours:</strong> 9:00 — 18:00 IST
+      </div>
+    </div>
+  </div>
+
+  <style>
+ :root {
+    --bg: #f9fafb;
+    --card: rgba(255, 255, 255, 0.6);
+    --text: #111827;
+    --muted: #6b7280;
+    --accent: #22c55e;
+    --accent-2: #10b981;
+    --radius: 22px;
+    --blur: 22px;
+    --shadow-sm: 0 10px 20px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 20px 60px rgba(0, 0, 0, 0.15);
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hero Section */
+.connect-hero {
+    padding: 6rem 0;
+    background: var(--bg);
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Container */
+.connect-container {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    flex-wrap: wrap;
+    perspective: 1000px; /* for subtle 3D effect */
+}
+
+/* Details */
+.connect-details {
+    flex: 1;
+    transform-style: preserve-3d;
+}
+
+.subtitle {
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    transition: var(--transition);
+}
+
+.connect-details h1 {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(2.8rem, 5vw, 3.6rem);
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    background: linear-gradient(120deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.intro-text {
+    color: var(--muted);
+    margin-bottom: 2rem;
+    max-width: 70ch;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    opacity: 0.95;
+}
+
+/* Highlights */
+.highlights-list {
+    display: flex;
+    gap: 1rem;
+    padding: 0;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    justify-content: start;
+}
+
+.highlights-list li {
+    list-style: none;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+    transition: transform 0.45s ease, box-shadow 0.45s ease, background 0.45s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+}
+
+.highlights-list li:hover {
+    transform: translateY(-4px) scale(1.08) rotateX(5deg);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.75);
+}
+
+/* Buttons */
+.buttons a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8rem 1.5rem;
+    border-radius: 16px;
+    border: 0;
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.2px;
+    transition: var(--transition);
+    margin-right: 1rem;
+    will-change: transform, box-shadow;
+}
+
+.primary-button {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #fff;
+    box-shadow: var(--shadow-sm);
+    transform-style: preserve-3d;
+}
+
+.primary-button:hover {
+    transform: translateY(-6px) scale(1.05) rotateX(3deg);
+    box-shadow: var(--shadow-md);
+}
+
+.secondary-button {
+    background: #fff;
+    color: var(--text);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.secondary-button:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Contact Info */
+.contact-info {
+    margin-top: 1.5rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+    transition: color 0.35s ease;
+}
+
+.contact-info a {
+    color: var(--text);
+    text-decoration: none;
+    position: relative;
+}
+
+.contact-info a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0%;
+    height: 2px;
+    background: var(--accent);
+    transition: width 0.35s ease;
+}
+
+.contact-info a:hover::after {
+    width: 100%;
+}
+
+/* Reveal Animation */
+[data-reveal] {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98) rotateX(-2deg);
+    transition: opacity 0.75s ease, transform 0.75s ease;
+}
+
+[data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* Background subtle animated gradient */
+.connect-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(270deg, #22c55e, #10b981, #22c55e);
+    background-size: 600% 600%;
+    opacity: 0.08;
+    animation: gradientBG 20s ease infinite;
+    pointer-events: none;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Responsive */
+@media (max-width: 960px) {
+    .connect-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .highlights-list {
+        justify-content: center;
+    }
+}
+
+  </style>
+
+  <script>
+    const revealElements = document.querySelectorAll('[data-reveal]');
+    const revealOnScroll = () => {
+      revealElements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if(rect.top < window.innerHeight - 100) {
+          el.classList.add('is-visible');
+        }
+      });
+    };
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', revealOnScroll);
+  </script>
+</section>
+
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-wrap">
+      <div class="footer-meta">
+        <img src="logo.png" alt="Zyntrix" class="footer-logo" />
+        <p>© <span data-year></span> Zyntrix. All rights reserved.</p>
+      </div>
+      <ul class="social">
+        <li><a href="https://www.linkedin.com/company/zyntrixtech/" aria-label="Linkedin">Linkedin</a></li>
+        <li><a href="https://www.instagram.com/zyntrixtech?igsh=NzZqd290NmlqNm03" aria-label="Instagram">Instagram</a></li>
+        <li><a href="https://wa.me/917986678730?text=Hi%20Zyntrix%2C%20I%27d%20like%20to%20start%20a%20project." aria-label="Whatsapp">Whatsapp</a></li>
+      </ul>
+    </div>
+    <div class="footer-mark" aria-hidden="true"><span>ZYNTRIX</span></div>
+  </footer>
+
+  
+ 
+
+</body>
+</html>
