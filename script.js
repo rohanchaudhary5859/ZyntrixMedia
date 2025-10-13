@@ -186,6 +186,58 @@
   area.addEventListener('mouseleave', reset);
 })();
 
+// 3D Tilt interaction for cards (mouse/pointer + touch friendly)
+(function(){
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; // respect user
+  var supportsPointer = window.PointerEvent;
+  var selector = '.media-card, .work-card, .t-card, .service';
+  var nodes = Array.prototype.slice.call(document.querySelectorAll(selector));
+  if(!nodes.length) return;
+
+  nodes.forEach(function(el){
+    el.classList.add('tiltable');
+    // Use pointer events when available
+    var active = false;
+    var rect = null;
+
+    function updateVars(rx, ry, tz){
+      el.style.setProperty('--rx', rx + 'deg');
+      el.style.setProperty('--ry', ry + 'deg');
+      el.style.setProperty('--tz', (tz || 8) + 'px');
+    }
+
+    function reset(){
+      el.style.transition = 'transform 420ms cubic-bezier(.2,.9,.3,1)';
+      updateVars(0,0,0);
+      setTimeout(function(){ el.style.transition = ''; }, 420);
+    }
+
+    function onMove(clientX, clientY){
+      if(!rect) rect = el.getBoundingClientRect();
+      var px = (clientX - rect.left) / rect.width;
+      var py = (clientY - rect.top) / rect.height;
+      var rx = (0.5 - py) * 2 * 6; // up to ~12deg
+      var ry = (px - 0.5) * 2 * 6;
+      updateVars(rx, ry, 12);
+      // adjust shadow for depth
+      el.style.boxShadow = '0 22px 60px rgba(2,6,23,0.16)';
+    }
+
+    if(supportsPointer){
+      el.addEventListener('pointerenter', function(e){ rect = el.getBoundingClientRect(); active = true; el.setPointerCapture && el.setPointerCapture(e.pointerId); });
+      el.addEventListener('pointermove', function(e){ if(!active) return; onMove(e.clientX, e.clientY); });
+      el.addEventListener('pointerleave', function(e){ active = false; rect = null; reset(); });
+    } else {
+      // fallback to mouse/touch
+      el.addEventListener('mousemove', function(e){ onMove(e.clientX, e.clientY); });
+      el.addEventListener('mouseleave', reset);
+      el.addEventListener('touchstart', function(e){ rect = el.getBoundingClientRect(); });
+      el.addEventListener('touchmove', function(e){ if(!e.touches || !e.touches[0]) return; onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+      el.addEventListener('touchend', function(){ rect = null; reset(); });
+    }
+  });
+})();
+
 // Hero contained canvas particles
 (function(){
   var canvas = document.getElementById('hero-canvas');
@@ -418,6 +470,7 @@
   }
 
   // ====== Knowledge Base ======
+  // Small built-in KB. You can replace/extend this with a `faq.json` file if you host the site
   var KB = {
     company: {
       name: 'Zyntrix',
@@ -438,6 +491,37 @@
     ]
   };
 
+  // Try to load optional faq.json (non-blocking). If present, merge/override KB.faqs
+  (function tryLoadExternalFAQ(){
+    try{
+      fetch('faq.json', { cache: 'no-store' }).then(function(res){
+        if(!res.ok) return null; return res.json();
+      }).then(function(json){
+        if(!json || !Array.isArray(json.faqs)) return;
+        // merge with built-in, giving priority to external
+        var map = {};
+        KB.faqs.forEach(function(f){ map[(f.q||'').toLowerCase()] = f; });
+        json.faqs.forEach(function(f){ if(f && f.q) map[(f.q||'').toLowerCase()] = f; });
+        KB.faqs = Object.keys(map).map(k => map[k]);
+        try { buildFAQIndex(); } catch (e) { /* ignore */ }
+      }).catch(function(){ /* ignore */ });
+    }catch(e){}
+  })();
+
+  // Fuse index will be built if Fuse is available. Fallback uses token overlap.
+  var fuse = null;
+  function buildFAQIndex(){
+    try{
+      if(window.Fuse && Array.isArray(KB.faqs)){
+        // create a copy to avoid side-effects
+        var data = KB.faqs.map(function(x){ return { q: x.q || '', a: x.a || '' }; });
+        fuse = new Fuse(data, { keys: ['q','a'], threshold: 0.4, includeScore: true, minMatchCharLength: 2 });
+      }
+    }catch(e){ fuse = null; }
+  }
+  // build initially from built-in KB
+  try { buildFAQIndex(); } catch(e){}
+
   var HINGLISH = /\b(namaste|hello|hi|hey|kaise|kaam|banwana|website|app|kiraya|kimat|daam|price|budget|estimate|kitna|kab|time|timeline|email|mail|phone|number|whatsapp|sahayta|madad)\b/i;
 
   function detectIntent(m){
@@ -451,6 +535,48 @@
     if (/(hello|hi|hey|namaste|salaam)/i.test(m)) return 'greet';
     if (HINGLISH.test(m)) return 'open';
     return 'open';
+  }
+
+  // Simple fuzzy match: score text similarity by token overlap and character closeness
+  function fuzzyFindFAQ(query){
+    if(!query) return null;
+    var q = String(query || '').trim();
+    // If Fuse is available, prefer it (returns array with { item, score })
+    try{
+      if(window.Fuse && fuse){
+        var results = fuse.search(q);
+        if(results && results.length){
+          var top = results[0];
+          // lower score is better in Fuse: 0 is exact match.
+          var score = typeof top.score === 'number' ? top.score : 1;
+          // high confidence
+          if(score <= 0.45){
+            return top.item; // return faq object
+          }
+          // low confidence suggestion: return wrapper indicating suggestion
+          return { suggestion: top.item, score: score, lowConfidence: true };
+        }
+      }
+    }catch(e){ /* ignore and fall back */ }
+
+    // fallback token overlap (lighter)
+    var lq = q.toLowerCase().replace(/[?!.]/g,'').trim();
+    var qTokens = lq.split(/\s+/).filter(Boolean);
+    var best = { score: 0, faq: null };
+    KB.faqs.forEach(function(f){
+      var text = (f.q + ' ' + (f.a||'')).toLowerCase();
+      var tTokens = text.split(/\s+/).filter(Boolean);
+      var overlap = qTokens.filter(function(t){ return tTokens.indexOf(t) !== -1; }).length;
+      var common = 0;
+      for(var i=0;i<Math.min(lq.length, text.length); i++){
+        if(lq[i] === text[i]) common++; else break;
+      }
+      var score = overlap * 2 + Math.min(common, 6);
+      if(text.indexOf(lq) !== -1) score += 4;
+      if(score > best.score){ best.score = score; best.faq = f; }
+    });
+    if(best.score >= 3) return best.faq; // require slightly higher overlap for fallback
+    return null;
   }
 
   function formatList(items){ return items.map(x => '• ' + x).join('\n'); }
@@ -620,6 +746,12 @@
     var intent = detectIntent(m);
     var c = KB.company;
 
+    // First, check if the message directly matches a FAQ via fuzzy match
+    var faq = fuzzyFindFAQ(m);
+    if(faq){
+      return faq.a || faq.q;
+    }
+
     switch(intent){
       case 'pricing':
         return 'Pricing: ' + c.pricing + '\nApna budget approx bata dein, mai estimate share karunga.';
@@ -638,13 +770,19 @@
       case 'greet':
         return 'Hello! Namaste! Main Zyntrix assistant hoon. Services, pricing, ya timelines pooch sakte hain. Aap kya build karna chahte hain?';
       default:
+        // handle open / unknown queries gracefully: attempt FAQ again with more relaxed rules
+        var relaxed = fuzzyFindFAQ(m + ' ' + (m.split(' ').slice(0,3).join(' ')));
+        if(relaxed) return relaxed.a || relaxed.q;
+
         var miss = missingFields();
         if(miss.length){
+          // Ask for missing field(s) specifically
           setTimeout(promptForMissing, 100);
           return 'Samajh gaya. Chaliye missing info complete karte hain.';
         } else {
+          // If we have all lead info, offer to send. Otherwise provide a helpful fallback
           setTimeout(offerSend, 100);
-          return 'Thanks! Sab info mil gayi.';
+          return 'Thanks! Sab info mil gayi. Agar aapke paas specific question hai, pooch lijiye — mai turant help karunga.';
         }
     }
   }
@@ -795,3 +933,155 @@
 })();
 { /* end pricing toggle IIFE */ }
 // ...existing code...
+
+// Scroll-based parallax for deeper 3D feeling
+(function(){
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var els = Array.prototype.slice.call(document.querySelectorAll('[data-depth]'));
+  if(!els.length) return;
+
+  var ticking = false;
+
+  function update(){
+    var vw = window.innerHeight;
+    els.forEach(function(el){
+      var depth = parseFloat(el.getAttribute('data-depth') || '1');
+      var rect = el.getBoundingClientRect();
+      // Calculate progress between -1..1 where 0 is center of viewport
+      var progress = (rect.top + rect.height/2 - window.innerHeight/2) / (window.innerHeight/2);
+      // translate more for deeper elements (positive downwards)
+      var ty = Math.round(progress * depth * 18); // px
+      el.style.setProperty('--ty', ty + 'px');
+    });
+    ticking = false;
+  }
+
+  function onScroll(){ if(!ticking){ requestAnimationFrame(update); ticking = true; } }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  // init
+  requestAnimationFrame(update);
+})();
+
+// Accessible Blog Modal: parse JSON, populate modal, focus-trap, ESC/outside click
+(function(){
+  var dataEl = document.getElementById('blog-data');
+  if(!dataEl) return;
+  var posts = {};
+  try{ posts = JSON.parse(dataEl.textContent); } catch(e){ posts = {}; }
+
+  var modal = document.getElementById('blogModal');
+  if(!modal) return;
+  // Ensure modal is a direct child of body to avoid positioning being affected by transformed ancestors
+  try { if(modal.parentNode !== document.body) document.body.appendChild(modal); } catch(e) {}
+  var modalTitle = modal.querySelector('.blog-modal-title');
+  var modalSub = modal.querySelector('.blog-modal-sub');
+  var modalBody = document.getElementById('blogModalBody');
+  var modalClose = document.getElementById('blogModalClose');
+  var content = modal.querySelector('.blog-modal-content');
+  if(!modalTitle || !modalBody || !modalClose || !content) return;
+
+  var lastFocus = null;
+  var firstFocusable = null, lastFocusable = null;
+  var _savedScrollY = 0;
+
+  function setupTrap(){
+    var focusable = 'a[href],area[href],input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),button:not([disabled]),[tabindex]:not([tabindex="-1"])';
+    var nodes = Array.prototype.slice.call(content.querySelectorAll(focusable));
+    if(nodes.length === 0) nodes = [modalClose];
+    firstFocusable = nodes[0];
+    lastFocusable = nodes[nodes.length - 1];
+  }
+
+  function releaseTrap(){ firstFocusable = null; lastFocusable = null; }
+
+  function handleTab(e){
+    if(!firstFocusable) return;
+    if(e.shiftKey && document.activeElement === firstFocusable){ e.preventDefault(); lastFocusable.focus(); }
+    else if(!e.shiftKey && document.activeElement === lastFocusable){ e.preventDefault(); firstFocusable.focus(); }
+  }
+
+  function open(id){
+    try { console.debug('modal.open called for id:', id, 'jsonPresent:', !!posts[id]); } catch(e){}
+    var p = posts && posts[id];
+    // fallback: if no JSON post, read from DOM card
+    var cardFallback = null;
+    if(!p){
+      cardFallback = document.querySelector('.work-card[data-post="' + id + '"]');
+      if(cardFallback){
+        p = {
+          title: (cardFallback.querySelector('h3') && cardFallback.querySelector('h3').textContent) || '',
+          body: (cardFallback.querySelector('p') && cardFallback.querySelector('p').textContent) || ''
+        };
+      }
+    }
+    if(!p) {
+      // nothing to show — debug info and bail out
+      try { console.info('No post found for id:', id); } catch(e){}
+      return;
+    }
+
+    lastFocus = document.activeElement;
+    modalTitle.textContent = p.title || '';
+    // modalSub comes from excerpt if available
+    modalSub.textContent = p.excerpt || '';
+
+    // populate body safely (no innerHTML)
+    while(modalBody.firstChild) modalBody.removeChild(modalBody.firstChild);
+    var para = document.createElement('p'); para.textContent = p.body || '';
+    modalBody.appendChild(para);
+
+    // show modal (CSS toggles on aria-hidden)
+    modal.setAttribute('aria-hidden','false');
+
+    // Lock scroll without causing the browser to jump: capture current scroll and freeze body
+    try {
+      _savedScrollY = window.scrollY || window.pageYOffset || 0;
+      // apply fixed positioning so the viewport doesn't jump when overflow is hidden
+      document.body.style.position = 'fixed';
+      document.body.style.top = (-_savedScrollY) + 'px';
+      document.body.classList.add('no-scroll');
+    } catch (e) { document.body.classList.add('no-scroll'); }
+
+    // prefer focusing the close button so screen reader users get a clear action
+    try { if (modalClose.focus) modalClose.focus({ preventScroll: true }); else modalClose.focus(); } catch (e) { try { modalClose.focus(); } catch(e){} }
+    setupTrap();
+    document.addEventListener('keydown', onKey);
+    modal.addEventListener('click', onClickOutside);
+  }
+
+  function close(){
+    modal.setAttribute('aria-hidden','true');
+    // restore scroll state
+    try {
+      document.body.classList.remove('no-scroll');
+      document.body.style.position = '';
+      document.body.style.top = '';
+      if(_savedScrollY) window.scrollTo(0, _savedScrollY);
+      _savedScrollY = 0;
+    } catch (e) { document.body.classList.remove('no-scroll'); }
+    document.removeEventListener('keydown', onKey);
+    modal.removeEventListener('click', onClickOutside);
+    releaseTrap();
+    if(lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+  }
+
+  function onKey(e){
+    if(e.key === 'Escape') { close(); }
+    if(e.key === 'Tab') { handleTab(e); }
+  }
+
+  function onClickOutside(e){ if(e.target === modal) close(); }
+
+  modalClose.addEventListener('click', function(e){ e.preventDefault(); close(); });
+
+  // wire up triggers on cards
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.work-card'));
+  cards.forEach(function(card){
+    var id = card.getAttribute('data-post');
+    var btn = card.querySelector('.btn');
+    if(btn) btn.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); try{ console.debug('card button clicked, id=', id); }catch(e){}; open(id); });
+    card.addEventListener('click', function(ev){ if(ev.target.closest('button')) return; try{ console.debug('card clicked, id=', id); }catch(e){}; open(id); });
+  });
+
+})();
