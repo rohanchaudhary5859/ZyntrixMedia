@@ -364,10 +364,13 @@
   // ====== Draggable floating button ======
   (function(){
     var dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+    // wasDragged prevents the click/tap that follows a drag from toggling the panel
+    var wasDragged = false;
     function clamp(val, min, max){ return Math.max(min, Math.min(max, val)); }
     function onDown(e){
       var point = e.touches ? e.touches[0] : e;
       dragging = true;
+      wasDragged = false;
       root.classList.add('dragging');
       startX = point.clientX; startY = point.clientY;
       var rect = root.getBoundingClientRect();
@@ -382,10 +385,14 @@
       var point = e.touches ? e.touches[0] : e;
       var dx = point.clientX - startX;
       var dy = point.clientY - startY;
+      // mark as dragged only after a small threshold so small taps aren't blocked
+      if(Math.abs(dx) > 6 || Math.abs(dy) > 6) wasDragged = true;
       var vw = window.innerWidth, vh = window.innerHeight;
       var rect = root.getBoundingClientRect();
       var newLeft = clamp(startLeft + dx, 6, vw - rect.width - 6);
       var newTop = clamp(startTop + dy, 6, vh - rect.height - 6);
+      // ensure the root remains fixed-positioned and can be placed anywhere
+      root.style.position = 'fixed';
       root.style.left = newLeft + 'px';
       root.style.top = newTop + 'px';
       root.style.right = 'auto';
@@ -393,25 +400,93 @@
       e.preventDefault();
     }
     function onUp(){ dragging = false; root.classList.remove('dragging');
+      // keep wasDragged true for the next short moment to suppress click
+      if(wasDragged){
+        // reset shortly after to allow normal clicks again
+        setTimeout(function(){ wasDragged = false; }, 50);
+      }
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('touchmove', onMove);
       document.removeEventListener('mouseup', onUp);
       document.removeEventListener('touchend', onUp);
     }
+    // Attach down handlers
     fab.addEventListener('mousedown', onDown);
     fab.addEventListener('touchstart', onDown, { passive: true });
+
+    // Intercept click that follows a drag so it doesn't toggle the panel
+    fab.addEventListener('click', function (ev) {
+      if (wasDragged) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        return;
+      }
+      // fallback: allow normal click behavior (the main click handler below will run)
+    });
   })();
 
   panel.classList.add('closed');
 
   function openChat() {
+    // Remove closed so panel becomes measurable/rendered
     panel.classList.remove('closed');
     fab.setAttribute('aria-expanded', 'true');
-    input.focus();
+
+    // Position panel near the toggle (works after the panel is rendered)
+    requestAnimationFrame(function () {
+      try {
+        // Ensure panel uses fixed positioning so it doesn't depend on container flow
+        panel.style.position = 'fixed';
+        // width should mirror CSS min(400px, calc(100vw - 32px))
+        var pw = Math.min(400, Math.max(280, window.innerWidth - 32));
+        panel.style.width = pw + 'px';
+        panel.style.maxHeight = Math.round(window.innerHeight * 0.75) + 'px';
+
+        var pr = root.getBoundingClientRect();
+        var vw = window.innerWidth, vh = window.innerHeight;
+        // center panel horizontally at the toggle by default, but clamp to viewport
+        var left = Math.round(pr.left + pr.width / 2 - pw / 2);
+        left = Math.max(8, Math.min(left, vw - pw - 8));
+
+        // prefer placing above the toggle; if insufficient space, place below
+        var ph = panel.offsetHeight || Math.round(vh * 0.5);
+        var aboveSpace = pr.top;
+        var belowSpace = vh - pr.bottom;
+        var top;
+        if (aboveSpace > ph + 12) {
+          top = Math.round(pr.top - ph - 12);
+        } else {
+          // place below
+          top = Math.round(pr.bottom + 12);
+          // if still overflows bottom, clamp
+          if (top + ph > vh - 8) top = Math.max(8, vh - ph - 8);
+        }
+
+        // On small screens prefer bottom sheet behavior (handled in CSS), so don't set absolute top
+        if (window.matchMedia('(max-width:520px)').matches) {
+          panel.style.left = '';
+          panel.style.right = '';
+          panel.style.bottom = '';
+          // allow CSS media query to control layout
+        } else {
+          panel.style.left = left + 'px';
+          panel.style.top = top + 'px';
+          panel.style.right = 'auto';
+          panel.style.bottom = 'auto';
+        }
+      } catch (e) { /* non-fatal */ }
+      try { input.focus(); } catch (e) {}
+    });
   }
 
   function closeChat() {
     panel.classList.add('closed');
+    // remove any inline positioning we applied previously so CSS can take over
+    panel.style.left = '';
+    panel.style.top = '';
+    panel.style.right = '';
+    panel.style.bottom = '';
+    panel.style.position = '';
     fab.setAttribute('aria-expanded', 'false');
     fab.focus();
   }

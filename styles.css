@@ -1008,11 +1008,13 @@ body.no-scroll { overflow: hidden; }
 
 /* Chatbot */
 .chatbot {
+  /* root is fixed so it can be moved anywhere via inline left/top during drag */
   position: fixed;
   right: 16px;
   bottom: 16px;
-  z-index: 999;
+  z-index: 9999;
   font-family: "Inter", sans-serif;
+  touch-action: none; /* make touch drags smoother */
 }
 
 /* Toggle Button */
@@ -1039,6 +1041,10 @@ body.no-scroll { overflow: hidden; }
 .chatbot:not(.dragging) .chatbot-toggle[aria-expanded="true"] {
   animation: togglePulse 1.8s ease-in-out infinite;
 }
+.chatbot.dragging .chatbot-toggle {
+  transform: none !important;
+  animation: none !important;
+}
 @keyframes togglePulse {
   0% { box-shadow: 0 8px 20px rgba(0,0,0,.25), 0 0 0 0 rgba(16,185,129,.45); }
   70% { box-shadow: 0 8px 20px rgba(0,0,0,.25), 0 0 0 12px rgba(16,185,129,0); }
@@ -1047,9 +1053,10 @@ body.no-scroll { overflow: hidden; }
 
 /* Panel */
 .chatbot-panel {
-  position: absolute;
-  right: 0;
-  bottom: 75px;
+  /* Use fixed positioning by default so panel follows the toggle even when root is moved */
+  position: fixed;
+  right: 16px;
+  bottom: 92px; /* sits above the toggle */
   width: min(400px, calc(100vw - 32px));
   max-height: 75vh;
   display: grid;
@@ -1089,6 +1096,31 @@ body.no-scroll { overflow: hidden; }
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.95) translateY(10px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Mobile: bottom sheet style for small viewports */
+@media (max-width: 520px) {
+  .chatbot {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+  }
+  .chatbot-panel {
+    position: fixed !important;
+    left: 8px !important;
+    right: 8px !important;
+    bottom: 12px !important;
+    top: auto !important;
+    width: calc(100% - 16px) !important;
+    max-height: 70vh;
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(2,6,23,0.28);
+  }
+  .chatbot-panel:not(.closed) {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  .chatbot-toggle { position: absolute; right: 14px; bottom: 14px; }
 }
 
 /* Header */
