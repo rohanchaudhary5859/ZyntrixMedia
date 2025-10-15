@@ -86,7 +86,6 @@ html { scroll-behavior: smooth; }
 .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
 .brand-logo { width: 56px; height: 56px; border-radius: 8px; object-fit: contain; box-shadow: 0 6px 20px rgba(2,6,23,0.06); }
 .brand-name { display: inline-block; font-weight: 700; letter-spacing: 0.06em; color: var(--text); }
-/* remove text logo usage; keep spacing when only image used */
 .brand-name { display:none; }
 
 .nav-toggle { display: none; background: transparent; border: 0; padding: 0; border-radius: 10px; width: 42px; height: 36px; position: relative; transition: transform .18s ease; }
