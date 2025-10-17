@@ -44,51 +44,68 @@
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-   <header class="site-header">
-    <div class="container header-wrap">
-      <a class="brand" href="index.html">
-        <img src="logo.png" alt="Zyntrix" class="brand-logo" />
-      </a>
-      <nav class="nav" aria-label="Primary">
-        <button class="nav-toggle" aria-controls="nav-menu" aria-expanded="false">☰</button>
-        <ul id="nav-menu" class="nav-menu">
-          <li><a href="index.html#work">Work</a></li>
-          <li><a href="index.html#services">Services</a></li>
+  <header class="site-header">
+      <div class="container header-wrap">
+        <a class="brand" href="#">
+          <img src="logo.png" alt="Zyntrix" class="brand-logo" />
+        </a>
+        <nav class="nav" aria-label="Primary">
+          <button class="nav-toggle" aria-controls="nav-menu" aria-expanded="false"></button>
+          <ul id="nav-menu" class="nav-menu">
+            <li><a href="#work">Work</a></li>
+            <li><a href="#services">Services</a></li>
             <li><a href="about.html">About</a></li>
-          <li><a href="index.html#faq">FAQ</a></li>
-          <li><a class="btn btn-primary" href="contactus.html">Contact Us</a></li>
-        </ul>
-      </nav>
-      <div class="nav-actions">
-        <a class="btn btn-primary" href="contactus.html">Contact Us</a>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a class="btn btn-primary" href="contactus.html">Contact Us</a></li>
+          </ul>
+          <div class="nav-indicator" aria-hidden="true"></div>
+        </nav>
+        <div class="nav-actions">
+          <a class="btn btn-primary" href="contactus.html">Contact Us</a>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
   <main id="main">
 <section class="connect-hero">
-  <div class="connect-container">
-    <div class="connect-details" data-reveal>
-      <p class="subtitle">Let's talk</p>
-      <h1>Start a project or ask a question</h1>
-      <p class="intro-text">Fast response, flexible engagement — we handle design, engineering and growth. Choose a convenient way to reach us.</p>
+  <div class="connect-container" data-reveal>
+    <!-- Intro / Headline -->
+    <div class="connect-details">
+      <p class="subtitle">Let's Talk</p>
+      <h1>Start a Project or Ask a Question</h1>
+      <p class="intro-text">
+        Fast response, flexible engagement — we handle design, engineering, and growth. 
+        Choose the most convenient way to reach us.
+      </p>
 
+      <!-- Highlights / Key Stats -->
       <ul class="highlights-list" aria-label="Highlights">
-        <li>120+ Projects</li>
-        <li>WhatsApp & Email support</li>
-        <li>Estimate in 48 hours</li>
+        <li>120+ Successful Projects</li>
+        <li>WhatsApp & Email Support</li>
+        <li>Estimate Within 48 Hours</li>
       </ul>
 
+      <!-- Action Buttons -->
       <div class="buttons">
-        <a class="primary-button" href="https://wa.me/917986678730?text=Hi%20Zyntrix%2C%20I%27d%20like%20to%20start%20a%20project.">Chat on WhatsApp</a>
-        <a class="secondary-button" href="mailto:hello@zyntrixmedia.xyz">Email Us</a>
+        <a class="primary-button btn btn-primary" 
+           href="https://wa.me/917986678730?text=Hi%20Zyntrix%2C%20I%27d%20like%20to%20start%20a%20project." 
+           aria-label="Chat with Zyntrix on WhatsApp">
+           Chat on WhatsApp
+        </a>
+        <a class="secondary-button btn" 
+           href="mailto:hello@zyntrixmedia.xyz" 
+           aria-label="Email Zyntrix">
+           Email Us
+        </a>
       </div>
 
+      <!-- Contact Info -->
       <div class="contact-info">
         <strong>Phone:</strong> <a href="tel:+917986678730">+91 79866 78730</a><br/>
         <strong>Hours:</strong> 9:00 — 18:00 IST
       </div>
     </div>
   </div>
+
 
   <style>
  :root {
