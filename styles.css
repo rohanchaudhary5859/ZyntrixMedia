@@ -1,17 +1,18 @@
 
 :root {
   /* Modern neutral theme: soft light background with teal → violet accents */
-  --bg: #f7fbff;            /* very light blue */
-  --bg-elev: #ffffff;       /* elevated surfaces */
-  --text: #0b1220;          /* deep navy for text */
-  --muted: #5b6b7a;         /* desaturated blue-gray */
-  --brand: #06b6d4;         /* teal/cyan primary */
-  --brand-2: #7c3aed;       /* violet secondary */
-  --accent: linear-gradient(90deg, #06b6d4, #7c3aed);
-  --card: #ffffff;
-  --border: #e6f0f8;        /* subtle cool border */
-  --shadow: 0 14px 40px rgba(2,6,23,.06);
-  --radius: 14px;
+   --bg: #f8f9fb;            /* soft off-white background */
+  --bg-elev: #ffffff;       /* clean elevated surfaces */
+  --text: #0f172a;          /* deep navy/charcoal, high readability */
+  --muted: #64748b;         /* subtle steel gray for secondary text */
+  --brand: #1e3a8a;         /* deep professional blue */
+  --brand-2: #3b82f6;       /* vibrant, trustworthy blue accent */
+  --accent: linear-gradient(90deg, #1e3a8a, #3b82f6); /* elegant gradient for highlights */
+  --card: #ffffff;          /* neutral, clean card background */
+  --border: #d1d5db;        /* soft gray border for subtle separation */
+  --shadow: 0 18px 50px rgba(15, 23, 42, 0.08); /* sophisticated depth */
+  --radius: 16px;           /* smooth, modern corners */
+
 
   --container: 1200px;
   --space-1: 8px;
@@ -79,10 +80,29 @@ html { scroll-behavior: smooth; }
 .header-wrap { position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 14px; padding: 10px 14px; background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.55)); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); margin: 0 auto; }
 .nav { justify-self: center; }
 .header-wrap::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; background: linear-gradient(135deg, color-mix(in oklab, var(--brand) 35%, transparent), color-mix(in oklab, var(--brand-2) 35%, transparent)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; pointer-events: none; }
-.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
-.brand-logo { width: 56px; height: 56px; border-radius: 8px; object-fit: contain; box-shadow: 0 6px 20px rgba(2,6,23,0.06); }
-.brand-name { display: inline-block; font-weight: 700; letter-spacing: 0.06em; color: var(--text); }
-.brand-name { display:none; }
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: contain;
+  box-shadow: none; /* removed shadow */
+}
+
+.brand-name {
+  display: inline-block; /* if you want it visible, otherwise keep display:none */
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
 
 .nav-toggle { display: none; background: transparent; border: 0; padding: 0; border-radius: 10px; width: 42px; height: 36px; position: relative; transition: transform .18s ease; }
 .nav-toggle::before, .nav-toggle::after, .nav-toggle span { content: ""; position: absolute; left: 10px; right: 10px; height: 3px; background: var(--text); border-radius: 3px; transition: transform .28s cubic-bezier(.2,.9,.3,1), opacity .2s ease, top .28s ease, bottom .28s ease; }
