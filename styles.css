@@ -3,17 +3,17 @@
   /* Modern neutral theme: soft light background with teal → violet accents */
 
   
- --bg: #fdfcf9;                /* soft luxury ivory background */
-  --bg-elev: #ffffff;           /* clean, pure elevation */
-  --text: #1b1b19;              /* espresso-black text for clarity */
-  --muted: #7c7a75;             /* calm warm gray for secondary info */
-  --brand: #d97706;             /* rich golden amber — classy, not flashy */
-  --brand-2: #fbbf24;           /* soft sunrise gold accent */
-  --accent: linear-gradient(130deg, #d97706, #fbbf24);
-  --card: #ffffff;              /* elevated surface */
-  --border: #e8e4da;            /* warm neutral border for subtle structure */
-  --shadow: 0 12px 40px rgba(0, 0, 0, 0.04); /* modern diffused shadow */
-  --radius: 22px
+  --bg: #f7f9fc;                /* refined pearl-blue background */
+  --bg-elev: #ffffff;           /* crisp elevated surface */
+  --text: #0c1526;              /* elegant deep navy text */
+  --muted: #5a6478;             /* subtle slate blue-gray for secondary text */
+  --brand: #1e40af;             /* sophisticated royal sapphire */
+  --brand-2: #3b82f6;           /* bright modern blue highlight */
+  --accent: linear-gradient(135deg, #1e40af, #3b82f6);
+  --card: #fdfefe;              /* ultra-clean card background */
+  --border: #d7e1f0;            /* light cool border tone */
+  --shadow: 0 8px 28px rgba(30, 64, 175, 0.08); /* soft sapphire shadow */
+  --radius: 22px;               /* modern smooth corner radius */
 
   --container: 1200px;
   --space-1: 8px;
